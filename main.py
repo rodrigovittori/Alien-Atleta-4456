@@ -1,22 +1,15 @@
 #pgzero
-""" [M6.L3] - Actividad 2: "Ventana del Juego"
-    Objetivo: presentar el sistema de pgzero a los alumnos """
+""" [M6.L3] - Actividad 3: "La función draw()"
+    Objetivo: Que la clase muestre un mensaje personalizado con el método draw() """
 
-WIDTH = 600   # Ancho de la ventana (en px)
-HEIGHT = 300  # Alto de la ventana  (en px)
+WIDTH = 900    # Ancho de la pantalla (en px)
+HEIGHT = 360   # Alto de la pantalla (en px)
 
-TITLE = "TÍTULO ÉPICO" # Título de nuestra ventana
-FPS = 30  # Ponemos un "cap" o límite máximo de FPS
+TITLE = "MENSAJE PERSONALIZADO" # sin archivos
+FPS = 30       # Tope/Límite de FPS (cuadros por segundo) a dibujar
+
+string_mensaje = "¡Hola mamá!, estoy programando :D"
 
 def draw():
-    # NOTA: Ya NO tenemos picture.jpg, así que deberemos rellenar nuestra ventana,
-    #       lo haremos a partir de nuestro screen: https://pygame-zero.readthedocs.io/en/stable/builtins.html#screen
-
-    # Fill como la tortuga puede recibir una tupla (r, g, b), un código predefinido o el color en Hexadecimal
-    # screen.fill("blue")           # Ejemplo con color predefinido
-    screen.fill((255, 0, 255)) # Ejemplo RGB
-    # screen.fill("#409428")        # Ejemplo con color predefinido
-    
-    screen.draw.text(TITLE, center=(WIDTH/2, HEIGHT/2), color="white", background="black", fontsize = 48)
-    # MUCHO TEXTO :V -> https://pygame-zero.readthedocs.io/en/stable/builtins.html?highlight=text#Screen.draw.text
-    #                -> https://pygame-zero.readthedocs.io/en/stable/ptext.html?highlight=text
+    screen.fill((84, 192, 176))
+    screen.draw.text(string_mensaje, center=(WIDTH/2, HEIGHT/2), color="white", background="black", fontsize = 48)
