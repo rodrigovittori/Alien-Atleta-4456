@@ -1,8 +1,5 @@
 #pgzero
-""" [M6.L3] - Actividad #5: "La función update(dt)"
-    Objetivo: Presentar el método Update(dt) y actualizar los elementos de juego
-
-    NOTA 1: El código de este proyecto está publicado en el repo:
+""" NOTA 1: El código de este proyecto está publicado en el repo:
             > https://github.com/rodrigovittori/Alien-Atleta-4456/
     
     NOTA 2: Los assets de este proyecto fueron tomados del sitio web de Kenney,
@@ -11,13 +8,14 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M6.L3] - Actividad #5: "La función update(dt)"
-    Objetivo: Familiarizarnos con la función update() 
+    [M6.L3] - Actividad #9 y #10: Homework/Tareas
+    Objetivo: Agregar el primer obstáculo
 
-    Paso 1) Vamos a crear un nuevo Actor llamado "caja", con la imágen "box"
-    Paso 2) Agregar en draw() el código necesario para que dibuje la caja
-    Paso 3) Vamos a definir nuestro métdodo "update" (para que funcione con pgzero NECESITA su parámetro dt -deltatime-)
-    Paso 4) Agregamos el código necesario para que nuestro personaje se desplace hacia la derecha y la caja hacia la izquierda  """
+    NOTA: Nosotros ya lo resolvimos, nos vemos la clase que viene :D
+    
+    TAREA: En base a lo que apredieron con el engranaje y los cristales,
+           modifiquen el código para que la caja y nuestro personaje NO puedan salir
+           de la pantalla de juego. """
 
 
 WIDTH = 600   # Ancho de la ventana (en px)
