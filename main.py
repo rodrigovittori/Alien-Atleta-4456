@@ -1,15 +1,24 @@
 #pgzero
-""" [M6.L3] - Actividad 3: "La función draw()"
-    Objetivo: Que la clase muestre un mensaje personalizado con el método draw() """
+""" [M6.L3] - Actividad #4: "Personaje"
+    Objetivo: enseñar a los alumnos a crear Actores y mostrarlos por pantalla 
 
-WIDTH = 900    # Ancho de la pantalla (en px)
-HEIGHT = 360   # Alto de la pantalla (en px)
+    NOTA 1: El código de este proyecto está publicado en el repo:
+            > https://github.com/rodrigovittori/Alien-Atleta-4456/
+    
+    NOTA 2: Los assets de este proyecto fueron tomados del sitio web de Kenney,
+            pueden obtener más modelos en: https://kenney.nl/assets/platformer-pack-redux
+            y revisar la colección completa en: https://kenney.nl/assets/series:Platformer%20Pack  """
 
-TITLE = "MENSAJE PERSONALIZADO" # sin archivos
-FPS = 30       # Tope/Límite de FPS (cuadros por segundo) a dibujar
+WIDTH = 600   # Ancho de la ventana (en px)
+HEIGHT = 300   # Alto de la ventana (en px)
 
-string_mensaje = "¡Hola mamá!, estoy programando :D"
+TITLE = "Juego del Alien Atleta y sus piruetas" # Título para la ventana del juego
+FPS = 30      # Número de fotogramas por segundo
 
-def draw():
-    screen.fill((84, 192, 176))
-    screen.draw.text(string_mensaje, center=(WIDTH/2, HEIGHT/2), color="white", background="black", fontsize = 48)
+""" > Vamos a crear nuestro personaje :D """
+fondo = Actor("background")           # Nuestro fondo NO tiene posición porque queremos que ocupe TODA la pantalla
+personaje = Actor("alien", (50, 240)) # Nuestro personaje SI la tiene, las coordenadas se registran en pos(x, y)
+
+def draw(): # draw() como su nombre lo indica es el método de pgzero que dibuja objetos en pantalla
+    fondo.draw()
+    personaje.draw()
