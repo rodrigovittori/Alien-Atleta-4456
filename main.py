@@ -8,17 +8,24 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M6.L4] - Actividad Nº 5: "Salto"
-    Objetivo: Agregar la lógica necesaria para implementar un salto
+    [M6.L4] - Actividad Nº 7: "Cambiando Sprites"
+    Objetivo: Agregar la lógica necesaria para que el sprite del personaje cambie según las acciones del jugador
 
-    NOTA: La actividad Nº 4 NO FORMA PARTE del proyecto
+    NOTA: La Actividad Nº 6 se resuelve con el código de la Actividad Nº 5
 
-    Paso Nº 1) Vamos a crear las variables necesarias para el sistema de salto: COOLDOWN_SALTO, timer_salto y altura_salto
-                NOTA: Por la implementación elegida por el grupo creamos un nuevo atributo que registra la posición inicial del PJ
-    Paso Nº 2) Agregamos actualizaciones de timers en update()
-    Paso Nº 3) Agregamos texto en draw() para saber cuando nuestro PJ esta LISTO para saltar
-    Paso Nº 4) Agregamos la lógica de control de salto (en on_key_down)
-    Paso Nº 5) Creamos una función invocable (sin parámetros) que controla la segunda parte de la animación de salto   """
+    Paso Nº 1) Crear una variable local en update() para almacenar la imágen que vamos a asignar al actor en cada frame.
+                NOTA: Ésta actividad normalmente se resuelve mediante el uso de una variable global, pero el
+                      grupo ha decidido controlar los cambios DIRECTAMENTE desde el atributo .image de Actor()
+
+                > https://pygame-zero.readthedocs.io/en/stable/builtins.html#actors
+                      
+    Paso Nº 2) Agregamos en las condiciones de movimiento un cambio de valor de nva_imagen
+    Paso Nº 3) Post-input actualizamos el sprite del personaje para que sea la imágen almacenada en nuestra variable
+
+---------------------------------------------------------------------------------------------------
+
+NOTA: Les quedan las actividades adicionales y tenemos un bug ya que nuestro PJ puede saltar mientras
+      sigue en el aire. Nos vemos la próxima semana :D    """
 
 WIDTH = 600   # Ancho de la ventana (en px)
 HEIGHT = 300   # Alto de la ventana (en px)
@@ -67,6 +74,9 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
 
     personaje.timer_salto -= dt # restamos al timer del cooldown de salto del persoanje el tiempo desde el último frame
     personaje.collidebox = Rect((personaje.x - int(personaje.width / 2), personaje.y - int(personaje.height / 2)), (personaje.width, personaje.height))
+
+    nva_imagen = "alien"        # variable local que almacena el próximo sprite a renderizar
+                                # "alien": quieto / "left": mov. izq. / "right" : mov. dcha.
     
     """   ################
          # LEER TECLADO #
@@ -74,9 +84,11 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
     
     if ( (keyboard.right or keyboard.d) and ( personaje.x < ( WIDTH - int(personaje.width / 2) ) ) ):
         personaje.x += personaje.velocidad
+        nva_imagen = "right"
 
     if ( (keyboard.left or keyboard.a) and ( personaje.x > int(personaje.width / 2) ) ):
         personaje.x -= personaje.velocidad
+        nva_imagen = "left"
 
     # Salto: lo implementamos en OnKeyDown(key)
     
@@ -90,7 +102,11 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
         caja.x -= 5      # mover la caja 5 px a la izquierda en cada frame
 
     caja.angle = (caja.angle % 360) + 5  # rotamos la caja 5 grados cada frame
-
+    
+    ###################################################################################
+    """ POST INPUT """
+    personaje.image = nva_imagen # Actualizamos el sprite del personaje
+    
 def on_key_down(key): # Este método se activa al presionar una tecla
     # https://pygame-zero.readthedocs.io/en/stable/hooks.html?highlight=on_key_down#on_key_down
 
@@ -104,7 +120,7 @@ def on_key_down(key): # Este método se activa al presionar una tecla
         #personaje.y -= personaje.altura_salto                           # El PJ "salta" (cambiamos su altura)
         #animate(personaje, tween="bounce_end", duration = 2, y = 240)   # Activamos la animación de caída
 
-        temp_anim = animate(personaje, tween="decelerate", duration = (personaje.COOLDOWN_SALTO / 2), y = (personaje.y - personaje.altura_salto))   # PRIMERO ANIMACIÓN
+        temp_anim = animate(personaje, tween="decelerate", duration = (personaje.COOLDOWN_SALTO / 2), y = (personaje.y - personaje.altura_salto))
         temp_anim.on_finished = bajarAlien
 
 def bajarAlien():
