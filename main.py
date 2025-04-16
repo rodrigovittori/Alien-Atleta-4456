@@ -8,15 +8,14 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M6.L3] - Actividad #9 y #10: Homework/Tareas
-    Objetivo: Agregar el primer obstáculo
+    [M6.L4] - Actividad Nº 1: "Actualizando la caja"
+    Objetivo: Lograr que la caja "respawnee" cada vez que se salga de la pantalla
+    Nota: Los límites para evitar que el PJ se salga de la pantalla los implementaremos
+          en la Actividad Nº 3 de hoy
 
-    NOTA: Nosotros ya lo resolvimos, nos vemos la clase que viene :D
-    
-    TAREA: En base a lo que apredieron con el engranaje y los cristales,
-           modifiquen el código para que la caja y nuestro personaje NO puedan salir
-           de la pantalla de juego. """
-
+    Paso Nº 1) Vamos a poner una condición que detecte CUANDO sale de la pantalla (x < 0)
+    Paso Nº 2) DENTRO de esa condición agregamos la lógica de "respawn"
+                      -> moverla fuera de la panatlla pero del lado derecho   """
 
 WIDTH = 600   # Ancho de la ventana (en px)
 HEIGHT = 300   # Alto de la ventana (en px)
@@ -44,5 +43,10 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
     personaje.angle -= 5   # para las piruetas :V
     
     # Mover la caja:
-    caja.x -= 5            # mover la caja 5 px a la izquierda en cada frame
-    caja.angle += 5        # roto la caja 5 grados cada frame
+    if (caja.x < 0):     # Si la caja salió de la ventana de juego...
+        caja.x += WIDTH  # La llevamos a la otra punta de la pantalla
+    else:
+        # Si todavía no se escapa de la ventana...
+        caja.x -= 5      # mover la caja 5 px a la izquierda en cada frame
+
+    caja.angle = (caja.angle % 360) + 5  # rotamos la caja 5 grados cada frame
