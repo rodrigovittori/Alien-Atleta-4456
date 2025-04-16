@@ -8,14 +8,15 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M6.L4] - Actividad Nº 1: "Actualizando la caja"
-    Objetivo: Lograr que la caja "respawnee" cada vez que se salga de la pantalla
-    Nota: Los límites para evitar que el PJ se salga de la pantalla los implementaremos
-          en la Actividad Nº 3 de hoy
+    [M6.L4] - Actividad Nº 3: "Controles"
+    Objetivo: Agregar controles para el movimiento del personaje
+    Nota: EN ESTA ACTIVIDAD agregaremos los límites para evitar que se salga de la pantalla de juego
 
-    Paso Nº 1) Vamos a poner una condición que detecte CUANDO sale de la pantalla (x < 0)
-    Paso Nº 2) DENTRO de esa condición agregamos la lógica de "respawn"
-                      -> moverla fuera de la panatlla pero del lado derecho   """
+    Paso Nº 1) Crearemos un atributo "velocidad" en nuestro personaje
+    Paso Nº 2) Modificamos el código en update() agregando condiciones de teclado y límites al PJ   
+    
+    NOTA: Modificaremos nuestro draw() para que se muestre en pantalla la posición en X de nuestro PJ
+    NOTA 2: Agregamos un Rect() de pygame para mostrar la "hitbox" del PJ   """
 
 WIDTH = 600   # Ancho de la ventana (en px)
 HEIGHT = 300   # Alto de la ventana (en px)
@@ -26,6 +27,20 @@ FPS = 30      # Número de fotogramas por segundo
 """ > Vamos a crear nuestro personaje :D """
 fondo =     Actor("background")          # Nuestro fondo NO tiene posición porque queremos que ocupe TODA la pantalla
 personaje = Actor("alien", (50, 240))    # Nuestro personaje SI la tiene, las coordenadas se registran en pos(x, y)
+personaje.velocidad = 5               # velocidad (en px) a la que avanza el personaje por cada frame
+
+""" Nota: Si quisieramos facilitar la tarea de "reiniciar"/"resetear"
+          la posición del personaje o los obstáculos/enemigos a su estado
+          inicial, podemos hacerlo de la siguiente manera:
+
+    Paso 1) Creamos un atributo del actor donde registramos su posición inicial:
+
+            personaje.posInicial = personaje.pos # almacenamos la posición inicial
+
+    Paso 2) Cuando querramos resetear la posición, usaremos:
+
+            personaje.pos = personaje.posInicial """
+
 caja =      Actor("box", ((WIDTH - 50), 265) )
 
 # draw() como su nombre lo indica es el método de pgzero que dibuja objetos en pantalla
@@ -34,13 +49,24 @@ def draw():
     personaje.draw()
     caja.draw()
 
+    screen.draw.text(("X= " + str(personaje.x)), (30,30), background="white", color="black", fontsize=24)
+    screen.draw.rect(personaje.collidebox, (255, 0, 255))
+
 def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa delta time (tiempo en segundos entre cada frame)
     # > https://pygame-zero.readthedocs.io/en/stable/hooks.html#update
     # Podemos traducir "update" como "actualizar", es decir, en este método contendremos el código que produzca cambios en nuestro juego
     
-    # Mover personaje:
-    personaje.x += 5       # mover el personaje 5 px a la derecha en cada frame
-    personaje.angle -= 5   # para las piruetas :V
+    # Actualizamos el personaje:
+
+    personaje.collidebox = Rect((personaje.x - int(personaje.width / 2), personaje.y - int(personaje.height / 2)), (personaje.width, personaje.height))
+    
+    if ( (keyboard.right or keyboard.d) and ( personaje.x < ( WIDTH - int(personaje.width / 2) ) ) ):
+        personaje.x += personaje.velocidad
+
+    if ( (keyboard.left or keyboard.a) and ( personaje.x > int(personaje.width / 2) ) ):
+        personaje.x -= personaje.velocidad
+    
+    ###################################################################################
     
     # Mover la caja:
     if (caja.x < 0):     # Si la caja salió de la ventana de juego...
