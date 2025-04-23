@@ -8,19 +8,21 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M6.L4] - Actividad Nº 7: "Cambiando Sprites"
-    Objetivo: Agregar la lógica necesaria para que el sprite del personaje cambie según las acciones del jugador
+    [M6.L4] - Actividad Nº 9 y 10 (Extras): "Esquivando"
+    Objetivo: Agregar la lógica necesaria para que nuestro personaje pueda agacharse
 
-    NOTA: La Actividad Nº 6 se resuelve con el código de la Actividad Nº 5
+    NOTA: La primer tarea extra ("Controles mejorados") ya la cumple nuestro código anterior
 
-    Paso Nº 1) Crear una variable local en update() para almacenar la imágen que vamos a asignar al actor en cada frame.
-                NOTA: Ésta actividad normalmente se resuelve mediante el uso de una variable global, pero el
-                      grupo ha decidido controlar los cambios DIRECTAMENTE desde el atributo .image de Actor()
+    Paso Nº 1) Agregar check para cuando se presione la tecla "S" o la flecha hacia abajo
+    Paso Nº 2) Modificar la altura del personaje cuando se presione la tecla
+    Paso Nº 3) Cambiar el sprite del personaje
+    Paso Nº 4) Crear dos atributos "esta_agachado" y "timer_agachado" para controlar cuando deshacemos los cambios
+    Paso Nº 5) Implementar la lógica de reseteo de la altura (en update())
+    Paso Nº 6) Agregamos una condición para que NO se pueda saltar mientras el PJ está agachado (en on_key_down())
 
-                > https://pygame-zero.readthedocs.io/en/stable/builtins.html#actors
-                      
-    Paso Nº 2) Agregamos en las condiciones de movimiento un cambio de valor de nva_imagen
-    Paso Nº 3) Post-input actualizamos el sprite del personaje para que sea la imágen almacenada en nuestra variable
+    NOTA: Si NO queremos permitir que el PJ se mueva mientras está agachado debemos agregar una cond. extra al mov.
+
+    Nota: Para evitar que al agacharse se anule la animación de salto DEBERÍAMOS implementar un check para prevenirlo
 
 ---------------------------------------------------------------------------------------------------
 
@@ -45,7 +47,11 @@ personaje.COOLDOWN_SALTO = 1             # tiempo de recarga habilidad salto (en
 personaje.timer_salto = 0                # tiempo que debe pasar (en segundos) antes de que nuestro personaje pueda saltar nuevamente
 personaje.altura_salto = int(personaje.height * 1.6) # El personaje saltará 1.6 veces su altura
 
-personaje.posInicial = personaje.pos  # almacenamos la posición inicial del PJ
+""" Nota: Para evitar que al agacharse se anule la animación de salto DEBERÍAMOS implementar un check para prevenirlo """
+personaje.timer_agachado = 0.0           # Tiempo restante (en segundos) antes de poner de pie al personaje
+personaje.esta_agachado = False          # Valor que controla si debemos permanecer agachados o no
+
+personaje.posInicial = personaje.pos     # almacenamos la posición inicial del PJ
 
 ############################################################################################################
 
@@ -72,25 +78,42 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
          # CAMBIOS AUTOMATICOS #
         #######################   """
 
-    personaje.timer_salto -= dt # restamos al timer del cooldown de salto del persoanje el tiempo desde el último frame
+    personaje.timer_salto -= dt    # restamos al timer del cooldown de salto del persoanje el tiempo desde el último frame
+
+    personaje.timer_agachado -= dt # restamos al timer para resetar la altura del persoanje el tiempo desde el último frame
+
+    if ((personaje.timer_agachado <= 0) and (personaje.esta_agachado)):
+        personaje.y = personaje.posInicial[1]   # Reseteamos la altura del PJ 
+        personaje.esta_agachado = False         # Indicamos que el PJ ya NO está agachado
+
+    
     personaje.collidebox = Rect((personaje.x - int(personaje.width / 2), personaje.y - int(personaje.height / 2)), (personaje.width, personaje.height))
 
-    nva_imagen = "alien"        # variable local que almacena el próximo sprite a renderizar
-                                # "alien": quieto / "left": mov. izq. / "right" : mov. dcha.
+    nva_imagen = "alien"           # variable local que almacena el próximo sprite a renderizar
+                                   # "alien": quieto / "left": mov. izq. / "right" : mov. dcha.
     
     """   ################
          # LEER TECLADO #
         ################   """
+
+    # Movimiento lateral
     
-    if ( (keyboard.right or keyboard.d) and ( personaje.x < ( WIDTH - int(personaje.width / 2) ) ) ):
+    if ( (keyboard.right or keyboard.d) and ( personaje.x < ( WIDTH - int(personaje.width / 2) ) ) and (not personaje.esta_agachado) ):
         personaje.x += personaje.velocidad
         nva_imagen = "right"
 
-    if ( (keyboard.left or keyboard.a) and ( personaje.x > int(personaje.width / 2) ) ):
+    if ( (keyboard.left or keyboard.a) and ( personaje.x > int(personaje.width / 2) ) and (not personaje.esta_agachado) ):
         personaje.x -= personaje.velocidad
         nva_imagen = "left"
 
     # Salto: lo implementamos en OnKeyDown(key)
+
+    # Agacharse
+    if (keyboard.down or keyboard.s):
+        personaje.y = 260    # Bajamos el pj
+        nva_imagen = "duck"
+        personaje.timer_agachado = 0.1 # tiempo que nuestro PJ seguirá agachado DESPUÉS de soltar la tecla
+        personaje.esta_agachado = True
     
     ###################################################################################
     
@@ -113,7 +136,8 @@ def on_key_down(key): # Este método se activa al presionar una tecla
     if (
          (keyboard.space or keyboard.w or keyboard.up) and   # Parte 1 de la cond: presionar tecla
          (personaje.timer_salto <= 0)                  and   # Parte 2 de la cond: timer listo
-         (personaje.y > personaje.height)                    # Parte 3 de la cond: el PJ NO ha salido de la pantalla
+         (personaje.y > personaje.height)              and   # Parte 3 de la cond: el PJ NO ha salido de la pantalla
+         (not personaje.esta_agachado)                       # Parte 4 de la cond: el PJ NO está agachado
        ):
         
         personaje.timer_salto = personaje.COOLDOWN_SALTO                 # Reseteamos cooldown
