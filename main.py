@@ -8,19 +8,25 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M7.L1] - Actividad Nº 3: "Game Over"
-    Objetivo: Implementar condiciones de derrota, ventana de fin de juego y una condición para reiniciar el juego
+    [M7.L1] - Actividad Nº 5: "Puntuación"
+    Objetivo: Implementar un sistema de puntuación que registre la cant. de enemigos esquivados
 
-    Paso Nº 1) Crear actor cartel_game_over
-    Paso Nº 2) Creamos una variable llamada "game_over" que comprueba si la partida ha terminado
-    Paso Nº 3) En caso de colisión game_over debe ser verdadero (True)
-                > en update() agregar como vble global a game_over
-                > agregar el cambio de valor en caso de colisión
-    Paso Nº 4) Modificamos nuestro draw() para mostrar el mensaje de fin de juego y prompt para reiniciar en caso de perder
-    Paso Nº 5) Modificamos update() y on_key_down() para que en caso de game_over:
-               > no sigan moviéndose los obstáculos
-               > no podamos mover al PJ, agacharnos ni saltar
-    Paso Nº 6) Agregamos condición para reiniciar el juego al presionar [Enter]
+    Nota: El ejercicio 4 ya estaba resuelto.
+    Nota 2: Podríamos implementar un aumento progresivo de la velocidad de nuestros enemigos
+            > Paso 1) Crear variable global velocidad_enemigos = 5
+            > Paso 2) Cambiar el mov de los enemigos a -= velocidad_enemigos
+            > Paso 3) Cada vez que uno o x cant de obstáculo(s) / enemigo(s) salga(n) de la pantalla
+                      velocidad_enemigos += 1
+            > Paso 4) Agregarlo en el bloque de reseteo/reinicio del juego
+
+    ---------------------------------------------------------------------------------------------------
+
+    Paso Nº 1) Creamos una variable (global) que almacene nuestra puntuación
+    Paso Nº 2) Modifico el draw() para que muestre la puntuación
+                > NOTA: También cambia en modo "game over"
+    Paso Nº 3) Modifico el reset para que reinicie nuestra puntuación
+                > NOTA: recordar declararla como global en update
+    Paso Nº 4) Aumentaremos la puntuación cada vez que un enemigo haya abandonado la pantalla
 
 ---------------------------------------------------------------------------------------------------
 
@@ -59,6 +65,7 @@ personaje.posInicial = personaje.pos     # almacenamos la posición inicial del 
 ############################################### [ VARIABLES ] ###############################################
 
 game_over = False    # Vble que registra si nuestra partida ha finalizado o no
+puntuacion = 0       # Cantidad de enemigos esquivados
 
 #############################################################################################################
 
@@ -70,8 +77,9 @@ def draw():
         # sería mejor solamente agregar el texto "GAME OVER" y dibujar el fondo
         fondo.draw() 
         cartel_game_over.draw()
-        # To-Do: Agregar puntuación final más adelante
-        screen.draw.text("Presiona [Enter] para reiniciar", center= (int(WIDTH/2), 2* int(HEIGHT/3)), color = "white", fontsize = 32)
+        # Nota: modificamos la altura del otro mensaje para mostrar más info:
+        screen.draw.text(("Enemigos esquivados: " + str(puntuacion)), center= (int(WIDTH/2), 2* int(HEIGHT/3)), color = "yellow", fontsize = 24)
+        screen.draw.text("Presiona [Enter] para reiniciar", center= (int(WIDTH/2), 4* int(HEIGHT/5)), color = "white", fontsize = 32)
 
     else:
         fondo.draw()
@@ -90,18 +98,21 @@ def draw():
         screen.draw.rect(caja.collidebox, (255, 0, 0)) # Dibujamos collidebox de la caja
         screen.draw.rect(abeja.collidebox, (255, 0, 0)) # Dibujamos collidebox de la abeja
 
+        # Indicador puntuación
+        screen.draw.text(("Enemigos esquivados: " + str(puntuacion)), midright=(WIDTH-20, 20), color ="black", background="white", fontsize=24)
+
 def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa delta time (tiempo en segundos entre cada frame)
     # > https://pygame-zero.readthedocs.io/en/stable/hooks.html#update
     # Podemos traducir "update" como "actualizar", es decir, en este método contendremos el código que produzca cambios en nuestro juego
 
-    global game_over
+    global game_over, puntuacion
 
     if (game_over):
         # En caso de game_over:
         if (keyboard.enter):
             """ >> Reiniciar el juego << """ # Nota: migrar a función
             game_over = False
-            # To-do: reiniciar puntuación
+            puntuacion = 0
             # Reseteamos personaje
             personaje.pos = personaje.posInicial
             personaje.timer_salto = 0
@@ -168,6 +179,7 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
         
         if (caja.x < 0):     # Si la caja salió de la ventana de juego...
             caja.x += WIDTH  # La llevamos a la otra punta de la pantalla
+            puntuacion += 1  # Aumento en 1 el contador de enemigos esquivados
         else:
             # Si todavía no se escapa de la ventana...
             caja.x -= 5      # mover la caja 5 px a la izquierda en cada frame
@@ -182,11 +194,12 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
     
         # NOTA: La abeja DEBERÍA tener un movimiento más complejo (creo que es una tarea adicional) con un patrón zigzagueante
         
-        if (abeja.x < 0):       # Si la caja salió de la ventana de juego...
+        if (abeja.x < 0):       # Si la abeja salió de la ventana de juego...
             abeja.x += WIDTH    # La llevamos a la otra punta de la pantalla
+            puntuacion += 1     # Aumento en 1 el contador de enemigos esquivados
         else:
             # Si todavía no se escapa de la ventana...
-            abeja.x -= 5     # mover la caja 5 px a la izquierda en cada frame
+            abeja.x -= 5     # mover la abeja 5 px a la izquierda en cada frame
         
         ###################################################################################
         """  ########################
