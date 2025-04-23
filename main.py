@@ -8,13 +8,17 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M7.L1] - Actividad Nº 1: Método Colliderect
-    Objetivo: Cambiar el sprite del personaje cuando éste entre en colisión con la caja
+    [M7.L1] - Actividad Nº 2: "Colisión con una abeja"
+    Objetivo: Agregar lógica de colisión para la abeja
 
-    Paso Nº 1) Agregar condición en update() que chequee si se dá una colisión entre PJ y caja
-    Paso Nº 2) Si se dá la colisión, cambiamos la imágen a "hurt"
+    NOTA: En el programa han eliminado la actividad donde creábamos la abeja, así que toca crearla en éste ejercicio.
 
-    Extra: Agregamos un Rect a la caja para mostrar visualmente la colisión
+    Paso Nº 1) Crear el actor de la abeja
+                Extra: agregar colliderect de la abeja
+    Paso Nº 2) Agregar la abeja en draw()
+    Paso Nº 3) Agregamos el movimiento automático de la abeja
+                > Ajustar la posición inicial de la caja y la abeja para evitar que lleguen al mismo tiempo hacia el personaje
+    Paso Nº 4) Agregar la condición de colisión contra la abeja con un "or"
 
 ---------------------------------------------------------------------------------------------------
 
@@ -30,7 +34,8 @@ FPS = 30      # Número de fotogramas por segundo
 """ > Vamos a crear nuestro personaje :D """
 fondo =     Actor("background")          # Nuestro fondo NO tiene posición porque queremos que ocupe TODA la pantalla
 
-caja =      Actor("box", ((WIDTH - 50), 265) )
+caja =      Actor("box", ( (WIDTH - 50), 265) )
+abeja =     Actor("bee", ( (WIDTH + 200), 150) )
 
 personaje = Actor("alien", (50, 240))    # Nuestro personaje SI la tiene, las coordenadas se registran en pos(x, y)
 personaje.velocidad = 5                  # velocidad (en px) a la que avanza el personaje por cada frame
@@ -52,6 +57,7 @@ def draw():
     fondo.draw()
     personaje.draw()
     caja.draw()
+    abeja.draw()
 
     # Indicador de salto:
     if (personaje.timer_salto <= 0):
@@ -62,6 +68,7 @@ def draw():
     screen.draw.rect(personaje.collidebox, (255, 0, 255)) # Dibujamos collidebox del PJ
     # INDICADOR DE POS DEL PJ EN EJE X: # screen.draw.text(("X= " + str(personaje.x)), (30,30), background="white", color="black", fontsize=24)
     screen.draw.rect(caja.collidebox, (255, 0, 0)) # Dibujamos collidebox de la caja
+    screen.draw.rect(abeja.collidebox, (255, 0, 0)) # Dibujamos collidebox de la abeja
 
 def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa delta time (tiempo en segundos entre cada frame)
     # > https://pygame-zero.readthedocs.io/en/stable/hooks.html#update
@@ -121,6 +128,20 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
         caja.x -= 5      # mover la caja 5 px a la izquierda en cada frame
 
     caja.angle = (caja.angle % 360) + 5  # rotamos la caja 5 grados cada frame
+
+    """ ########################################################################### """
+    
+    # Mover la abeja - NOTA/TO-DO: Migrar a una función
+
+    abeja.collidebox = Rect((abeja.x - int(abeja.width / 2), abeja.y - int(abeja.height / 2)), (abeja.width, abeja.height))
+
+    # NOTA: La abeja DEBERÍA tener un movimiento más complejo (creo que es una tarea adicional) con un patrón zigzagueante
+    
+    if (abeja.x < 0):       # Si la caja salió de la ventana de juego...
+        abeja.x += WIDTH    # La llevamos a la otra punta de la pantalla
+    else:
+        # Si todavía no se escapa de la ventana...
+        abeja.x -= 5     # mover la caja 5 px a la izquierda en cada frame
     
     ###################################################################################
     """  ########################
@@ -130,7 +151,7 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
     # Nota: migrar a función comprobar_colisiones()
     #    > https://www.pygame.org/docs/ref/rect.html#pygame.Rect.colliderect
 
-    if personaje.colliderect(caja):
+    if ( personaje.colliderect(caja) or personaje.colliderect(abeja) ):
         if (nva_imagen != "hurt"):
             nva_imagen = "hurt"
             # NOTA: Si queremos implementar un sistema de "daño" en lugar de una muerte instantánea, éste es el lugar :D
