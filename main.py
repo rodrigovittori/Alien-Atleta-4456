@@ -1,4 +1,6 @@
 #pgzero
+import random
+
 """ NOTA 1: El código de este proyecto está publicado en el repo:
             > https://github.com/rodrigovittori/Alien-Atleta-4456/
     
@@ -8,19 +10,20 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M7.L2] - Actividad #2: "Funciones de movimiento"
-    # Objetivo: Migrar la lógica de movimiento de los enemigos a una función avocada a ello
+    [M7.L2] - Actividad #3: "Enemigos aleatorios"
+    # Objetivo: Llamar al próximo obstáculo/enemigo según un valor random
 
-    Paso Nº 1) Creamos una función actualizar_enemigos()
-    Paso Nº 2) Creamos también las funciones: mover_personaje(), detectar_colisiones(), reiniciar_juego()
+    Modificamos el sistema de obstáculos para actualizar uno a la vez, que se determina de forma aleatoria
 
-    Nota 3: Seguimos sin imágen/sprite "hurt"
+    Paso Nº 1) Importar el módulo random
+    Paso Nº 2) Crear la vble global "prox_enemigo", que tomará un valor random entre 1 y 2
+               (xq sólo tenemos dos tipos de enemigos)
+    Paso Nº 3) Modificaremos nuestra función actualizar_enemigos() para que SOLO mueva el enemigo seleccionado
+    Paso Nº 4) Agregar a la función reiniciar_juego una condición para reestablecer el valor del prox_enemigo a spwanear
 
-    Nota 4: CUIDADO: Si intentamos dibujar texto_colision con un valor vacío, nos devuelve el siguiente error:
-           > ExternalError:
-                InvalidStateError:
-                    Failed to execute 'drawImage' on 'CanvasRenderingContext2D':
-                        The image argument is a canvas element with a width or height of 0.
+    Nota: Para facilitar las tareas de respawn implementamos posInicial al PJ, abeja y caja
+            > Cambiamos spawn a WIDTH + 50
+            
 ---------------------------------------------------------------------------------------------------
 
 NOTA: Les quedan las actividades adicionales y tenemos un bug ya que nuestro PJ puede saltar mientras
@@ -54,8 +57,13 @@ personaje.posInicial = personaje.pos     # almacenamos la posición inicial del 
 
 ######################################### [ ENEMIGOS / OBSTÁCULOS ] #########################################
 
-caja =      Actor("box", ( (WIDTH - 50), 265) )
-abeja =     Actor("bee", ( (WIDTH + 200), 150) )
+caja =      Actor("box", ( (WIDTH + 50), 265) )
+caja.collidebox = Rect((caja.x - int(caja.width / 2), caja.y - int(caja.height / 2)), (caja.width, caja.height))
+caja.posInicial = caja.pos
+
+abeja =     Actor("bee", ( (WIDTH + 50), 150) )
+abeja.collidebox = Rect((abeja.x - int(abeja.width / 2), abeja.y - int(abeja.height / 2)), (abeja.width, abeja.height))
+abeja.posInicial = abeja.pos
 
 ############################################### [ VARIABLES ] ###############################################
 
@@ -63,6 +71,7 @@ game_over = False    # Vble que registra si nuestra partida ha finalizado o no
 puntuacion = 0       # Cantidad de enemigos esquivados
 texto_colision = ""  # texto que se muestra por pantalla para informar s/colision letal
 nva_imagen = "alien" # Sprite que tendrá nuestro PJ el PRÓXIMO frame (se actualiza durante update())
+prox_enemigo = random.randint(1, 2) # 1: Caja / 2: Abeja
 
 #############################################################################################################
 
@@ -71,34 +80,38 @@ nva_imagen = "alien" # Sprite que tendrá nuestro PJ el PRÓXIMO frame (se actua
    #####################  """
 
 def actualizar_enemigos():
-    global puntuacion
-        
-    # ENEMIGO Nº 1: CAJA
+    global puntuacion, prox_enemigo
+
+    """ NOTA: Si cambiamos al velocidad de los enemigos en base a una vble, debemos incluírla """
     
-    caja.collidebox = Rect((caja.x - int(caja.width / 2), caja.y - int(caja.height / 2)), (caja.width, caja.height))
-        
-    if (caja.x < 0):     # Si la caja salió de la ventana de juego...
-        caja.x += WIDTH  # La llevamos a la otra punta de la pantalla
-        puntuacion += 1  # Aumento en 1 el contador de enemigos esquivados
-    else:
-        # Si todavía no se escapa de la ventana...
-        caja.x -= 5      # mover la caja 5 px a la izquierda en cada frame
+    if (prox_enemigo == 1):
+        # ENEMIGO Nº 1: CAJA
+        if (caja.x < 0):     # Si la caja salió de la ventana de juego...
+            caja.pos = caja.posInicial
+            puntuacion += 1  # Aumento en 1 el contador de enemigos esquivados
+            prox_enemigo = random.randint(1, 2) # Selecciono prox enemigo de forma aleatoria
+        else:
+            # Si todavía no se escapa de la ventana...
+            caja.x -= 5      # mover la caja 5 px a la izquierda en cada frame
+            
         caja.angle = (caja.angle % 360) + 5  # rotamos la caja 5 grados cada frame
+        caja.collidebox = Rect((caja.x - int(caja.width / 2), caja.y - int(caja.height / 2)), (caja.width, caja.height))
     
-    """ ########################################################################### """
+        """ ########################################################################### """
+    
+    if (prox_enemigo == 2):
+        # ENEMIGO Nº 2: ABEJA
+        # NOTA: La abeja DEBERÍA tener un movimiento más complejo (creo que es una tarea adicional) con un patrón zigzagueante
+            
+        if (abeja.x < 0):       # Si la caja salió de la ventana de juego...
+            abeja.pos = abeja.posInicial
+            puntuacion += 1     # Aumento en 1 el contador de enemigos esquivados
+            prox_enemigo = random.randint(1, 2) # Selecciono prox enemigo de forma aleatoria
+        else:
+            # Si todavía no se escapa de la ventana...
+            abeja.x -= 5     # mover la caja 5 px a la izquierda en cada frame
         
-    # ENEMIGO Nº 2: ABEJA
-    
-    abeja.collidebox = Rect((abeja.x - int(abeja.width / 2), abeja.y - int(abeja.height / 2)), (abeja.width, abeja.height))
-    
-    # NOTA: La abeja DEBERÍA tener un movimiento más complejo (creo que es una tarea adicional) con un patrón zigzagueante
-        
-    if (abeja.x < 0):       # Si la abeja salió de la ventana de juego...
-        abeja.x += WIDTH    # La llevamos a la otra punta de la pantalla
-        puntuacion += 1     # Aumento en 1 el contador de enemigos esquivados
-    else:
-        # Si todavía no se escapa de la ventana...
-        abeja.x -= 5     # mover la abeja 5 px a la izquierda en cada frame
+        abeja.collidebox = Rect((abeja.x - int(abeja.width / 2), abeja.y - int(abeja.height / 2)), (abeja.width, abeja.height))
 
 ###########################################################################
 
@@ -123,7 +136,7 @@ def detectar_colisiones():
 ###########################################################################
 
 def reiniciar_juego():
-    global game_over, puntuacion, texto_colision, nva_imagen
+    global game_over, puntuacion, texto_colision, nva_imagen, prox_enemigo
     
     game_over = False
     puntuacion = 0
@@ -135,12 +148,17 @@ def reiniciar_juego():
     personaje.esta_agachado = False
     personaje.velocidad = 5
     nva_imagen = "alien"
+    
+    # Reseteamos enemigos
     # Nota: Si hacemos que la velocidad de los enemigos escale con el tiempo, la reseteamos
+    prox_enemigo = random.randint(1, 2) # Selecciono prox enemigo de forma aleatoria
     # Reseteamos caja
-    caja.pos = (WIDTH - 50, 265)
+    caja.pos = caja.posInicial
     caja.angle = 0
+    caja.collidebox = Rect((caja.x - int(caja.width / 2), caja.y - int(caja.height / 2)), (caja.width, caja.height))
     # Reseteamos abeja
-    abeja.pos = (WIDTH + 200, 150)
+    abeja.pos = abeja.posInicial
+    abeja.collidebox = Rect((abeja.x - int(abeja.width / 2), abeja.y - int(abeja.height / 2)), (abeja.width, abeja.height))
 
 ###########################################################################
 
