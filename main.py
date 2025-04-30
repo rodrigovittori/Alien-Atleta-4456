@@ -8,25 +8,17 @@
     
     ---------------------------------------------------------------------------------------------------
 
-    [M7.L1] - Actividad Nº 5: "Puntuación"
-    Objetivo: Implementar un sistema de puntuación que registre la cant. de enemigos esquivados
+    [M7.L1] - Actividad #7 (Extra): "Dividir a los enemigos"
+    # Objetivo: En la pantalla de Game Over mostrar un mensaje que cambie
+                según el tipo de enemigo/obstáculo que nos venció
 
-    Nota: El ejercicio 4 ya estaba resuelto.
-    Nota 2: Podríamos implementar un aumento progresivo de la velocidad de nuestros enemigos
-            > Paso 1) Crear variable global velocidad_enemigos = 5
-            > Paso 2) Cambiar el mov de los enemigos a -= velocidad_enemigos
-            > Paso 3) Cada vez que uno o x cant de obstáculo(s) / enemigo(s) salga(n) de la pantalla
-                      velocidad_enemigos += 1
-            > Paso 4) Agregarlo en el bloque de reseteo/reinicio del juego
+    Paso Nº 1) Creamos una variable (global) que almacene el texto a mostrar según el tipo de colisión
+    Paso Nº 2) Modifico el bloque de colisiones
+    Paso Nº 3) Modifico el draw() para que muestre un mensaje según la colisión
+    Paso Nº 4) Modifico el reset para que reinicie la variable de colision
 
-    ---------------------------------------------------------------------------------------------------
-
-    Paso Nº 1) Creamos una variable (global) que almacene nuestra puntuación
-    Paso Nº 2) Modifico el draw() para que muestre la puntuación
-                > NOTA: También cambia en modo "game over"
-    Paso Nº 3) Modifico el reset para que reinicie nuestra puntuación
-                > NOTA: recordar declararla como global en update
-    Paso Nº 4) Aumentaremos la puntuación cada vez que un enemigo haya abandonado la pantalla
+    NOTA: Esta tarea no cuenta con el sprite "hurt", por lo que podemos recibir el siguiente error:
+          > ValueError: Image hurt not found
 
 ---------------------------------------------------------------------------------------------------
 
@@ -45,9 +37,6 @@ FPS = 30      # Número de fotogramas por segundo
 fondo =            Actor("background")   # Nuestro fondo NO tiene posición porque queremos que ocupe TODA la pantalla
 cartel_game_over = Actor("GO")           # Splash Screen de Game Over
 
-caja =      Actor("box", ( (WIDTH - 50), 265) )
-abeja =     Actor("bee", ( (WIDTH + 200), 150) )
-
 """ > Vamos a crear nuestro personaje :D """
 personaje = Actor("alien", (50, 240))    # Nuestro personaje SI la tiene, las coordenadas se registran en pos(x, y)
 personaje.velocidad = 5                  # velocidad (en px) a la que avanza el personaje por cada frame
@@ -62,10 +51,16 @@ personaje.esta_agachado = False          # Valor que controla si debemos permane
 
 personaje.posInicial = personaje.pos     # almacenamos la posición inicial del PJ
 
+######################################### [ ENEMIGOS / OBSTÁCULOS ] #########################################
+
+caja =      Actor("box", ( (WIDTH - 50), 265) )
+abeja =     Actor("bee", ( (WIDTH + 200), 150) )
+
 ############################################### [ VARIABLES ] ###############################################
 
 game_over = False    # Vble que registra si nuestra partida ha finalizado o no
 puntuacion = 0       # Cantidad de enemigos esquivados
+texto_colision = ""  # texto que se muestra por pantalla para informar s/colision letal
 
 #############################################################################################################
 
@@ -80,6 +75,7 @@ def draw():
         # Nota: modificamos la altura del otro mensaje para mostrar más info:
         screen.draw.text(("Enemigos esquivados: " + str(puntuacion)), center= (int(WIDTH/2), 2* int(HEIGHT/3)), color = "yellow", fontsize = 24)
         screen.draw.text("Presiona [Enter] para reiniciar", center= (int(WIDTH/2), 4* int(HEIGHT/5)), color = "white", fontsize = 32)
+        screen.draw.text(texto_colision, center= (int(WIDTH/2), int(HEIGHT/5)), color = "red", background = "black", fontsize = 24)
 
     else:
         fondo.draw()
@@ -105,7 +101,7 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
     # > https://pygame-zero.readthedocs.io/en/stable/hooks.html#update
     # Podemos traducir "update" como "actualizar", es decir, en este método contendremos el código que produzca cambios en nuestro juego
 
-    global game_over, puntuacion
+    global game_over, puntuacion, texto_colision
 
     if (game_over):
         # En caso de game_over:
@@ -113,6 +109,7 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
             """ >> Reiniciar el juego << """ # Nota: migrar a función
             game_over = False
             puntuacion = 0
+            texto_colision = ""
             # Reseteamos personaje
             personaje.pos = personaje.posInicial
             personaje.timer_salto = 0
@@ -209,12 +206,20 @@ def update(dt): # update(dt) es el bucle ppal de nuestro juego, dt significa del
         # Nota: migrar a función comprobar_colisiones()
         #    > https://www.pygame.org/docs/ref/rect.html#pygame.Rect.colliderect
     
-        if ( personaje.colliderect(caja) or personaje.colliderect(abeja) ):
+        if ( personaje.colliderect(caja) ):
             if (nva_imagen != "hurt"):
-                nva_imagen = "hurt"
+                # nva_imagen = "hurt"
                 # NOTA: Si queremos implementar un sistema de "daño" en lugar de una muerte instantánea, éste es el lugar :D
                 game_over = True # En caso de colisión, terminamos el juego
-    
+                texto_colision = "¡Entrega letal!"
+                
+        elif ( personaje.colliderect(abeja) ):
+            if (nva_imagen != "hurt"):
+                # nva_imagen = "hurt"
+                # NOTA: Si queremos implementar un sistema de "daño" en lugar de una muerte instantánea, éste es el lugar :D
+                game_over = True # En caso de colisión, terminamos el juego
+                texto_colision = "¡Eres alérgico a las abejas!"
+        
         ###################################################################################
         """ POST INPUT """
         personaje.image = nva_imagen # Actualizamos el sprite del personaje
